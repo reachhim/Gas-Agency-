@@ -1,0 +1,85 @@
+body {
+  font-family: Arial, sans-serif;
+  display: flex;
+  justify-content: left;
+  align-items: center;
+  height: 100vh;
+  background-image: url("./bkg.png");
+background-size: cover; 
+background-repeat: no-repeat;
+background-position: center; 
+}
+.admin-dashboard {
+    width: 35%;
+    max-width: 1200px;
+    max-height: fit-content;
+    margin: 20px ;
+    padding: 20px;
+    background: white;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    text-align: center;
+  }
+  
+  h2 {
+    margin-bottom: 15px;
+  }
+  
+  .admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+  }
+  
+  .admin-table th,
+  .admin-table td {
+    padding: 10px;
+    border: 1px solid #ddd;
+    text-align: center;
+  }
+  
+  .admin-table th {
+    background-color: #007bff;
+    color: white;
+  }
+  
+  .admin-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+  }
+  
+  .admin-table tr:hover {
+    background-color: #f1f1f1;
+  }
+  
+  button {
+    padding: 5px 10px;
+    margin: 5px;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+  }
+  
+  button:hover {
+    opacity: 0.8;
+  }
+  
+  button:first-of-type {
+    background-color: #28a745;
+    color: white;
+  }
+  
+  .cancel-btn {
+    background-color: #dc3545;
+    color: white;
+  }
+  
+  .admin-card {
+    background-color: rgb(126, 170, 241);
+    max-width: 400px; 
+    width: 90%; 
+    padding: 20px;
+    margin: 20px auto; 
+    border-radius: 10px; 
+    box-shadow: 2px 4px 10px rgba(0, 0, 0, 0.1);
+    text-align: center; 
+}

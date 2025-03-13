@@ -1,0 +1,194 @@
+<!-- CylinderBooking.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Cylinder Booking</title>
+    <link rel="stylesheet" href="CylinderBooking.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: left;
+            align-items: center;
+            height: 100vh;
+            background-image: url("./bkg.png");
+  background-size: cover; 
+  background-repeat: no-repeat;
+  background-position: center; 
+        }
+
+        .booking-card {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 400px;
+            margin-left: 150px;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .input-group input, .input-group select {
+            width: 94%;
+            padding: 8px;
+            margin-bottom: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .booking-button {
+            width: 94%;
+            padding: 10px;
+            margin: 10px;
+            background-color: #481df4;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .booking-button:hover {
+            background-color: #45a049;
+        }
+
+        .error-message {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <div class="booking-card">
+        <h2>Cylinder Booking</h2>
+        <p id="error-message" class="error-message"></p>
+
+        <div class="input-group">
+            <label>Name</label>
+            <input id="name" type="text" readonly disabled>
+        </div>
+
+        <div class="input-group">
+            <label>Customer ID</label>
+            <input id="customerId" type="text" readonly disabled>
+        </div>
+
+        <div class="input-group">
+            <label>Address</label>
+            <input id="address" type="text">
+            <button onclick="toggleEdit('address')">Edit</button>
+        </div>
+
+        <div class="input-group">
+            <label>Phone</label>
+            <input id="phone" type="tel">
+            <button onclick="toggleEdit('phone')">Edit</button>
+        </div>
+
+        <div class="input-group">
+            <label>Cylinder Type</label>
+            <select id="cylinderType">
+                <option value="Standard">Standard</option>
+                <option value="Premium">Premium</option>
+                <option value="Industrial">Industrial</option>
+            </select>
+        </div>
+
+        <button class="booking-button" onclick="handleBooking()">Book Now</button>
+        <button class="booking-button" onclick="showBookingHistory()">Show Booking History</button>
+    </div>
+
+    <script>
+        let isAddressEditable = false;
+        let isPhoneEditable = false;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const customerId = localStorage.getItem('userId');
+            if (!customerId) {
+                document.getElementById('error-message').innerText = 'No customer ID found. Please log in.';
+                return;
+            }
+
+            document.getElementById('customerId').value = customerId;
+
+            fetch(`http://localhost:5000/get-user?customerId=${customerId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        document.getElementById('error-message').innerText = data.error;
+                    } else {
+                        document.getElementById('name').value = data.name;
+                        document.getElementById('address').value = data.address;
+                        document.getElementById('phone').value = data.phonenumber;
+                    }
+                })
+                .catch(() => {
+                    document.getElementById('error-message').innerText = 'Failed to load user data';
+                });
+        });
+
+        function toggleEdit(field) {
+            const input = document.getElementById(field);
+            if (field === 'address') isAddressEditable = !isAddressEditable;
+            if (field === 'phone') isPhoneEditable = !isPhoneEditable;
+
+            input.readOnly = !(isAddressEditable || isPhoneEditable);
+
+            if (!input.readOnly) {
+                input.focus();
+            } else {
+                fetch('http://localhost:5000/update-user', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ customerId: localStorage.getItem('userId'), field, value: input.value })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (!data.success) {
+                        alert(data.error);
+                    }
+                })
+                .catch(() => alert('Update failed'));
+            }
+        }
+
+        function handleBooking() {
+            const customerId = localStorage.getItem('userId');
+            const address = document.getElementById('address').value;
+            const phone = document.getElementById('phone').value;
+            const cylinderType = document.getElementById('cylinderType').value;
+
+            if (!customerId || !address || !phone) {
+                alert('Please provide complete details');
+                return;
+            }
+
+            fetch('http://localhost:5000/book-cylinder', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ customerId, address, phone, cylinderType })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Booking Successful! Booking ID: ' + data.bookingId);
+                } else {
+                    alert(data.error);
+                }
+            })
+            .catch(() => alert('Booking failed'));
+        }
+
+        function showBookingHistory() {
+            const page = 'mybookings';
+           window.location.href = page + '.html'
+        }
+    </script>
+</body>
+</html>

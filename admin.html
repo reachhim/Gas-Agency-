@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="AdminDashboard.css">
+</head>
+<body>
+    <div class="admin-dashboard">
+        <h2>Admin Dashboard</h2>
+        <div class="card-container">
+            <div class="admin-card" onclick="navigateTo('managebookings')">
+                <h3>Manage Bookings</h3>
+                <p>View and update cylinder bookings</p>
+            </div>
+            <div class="admin-card" onclick="navigateTo('registration')">
+                <h3>User Registration</h3>
+                <p>Register new users and manage accounts</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function navigateTo(page) {
+            window.location.href = page + '.html';
+        }
+    </script>
+</body>
+</html>

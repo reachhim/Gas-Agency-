@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My Cylinder Booking History</title>
+    <link rel="stylesheet" href="MyBookingHistory.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: left;
+            height: 100vh;
+            background-image: url("./bkg.png");
+  background-size: cover; 
+  background-repeat: no-repeat;
+  background-position: center; 
+        }
+        table {
+            width: 40%;
+            border-collapse: collapse;
+            margin-left: 30px;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+            background-color: white;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .error {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <div class="booking-history-container">
+        <h2 style="margin-left: 30px;color: aliceblue;">My Cylinder Booking History</h2>
+        <div id="error"></div>
+        <table id="bookingTable">
+            <thead>
+                <tr>
+                    <th>Booking ID</th>
+                    <th>Booking Date</th>
+                    <th>Cylinder Type</th>
+                    <th>Address</th>
+                    <th>Phone</th>
+                </tr>
+            </thead>
+            <tbody id="bookingBody"></tbody>
+        </table>
+    </div>
+
+    <script>
+        const customerId = localStorage.getItem('userId');
+
+        if (!customerId) {
+            document.getElementById('error').innerText = "User not logged in. Please log in.";
+            setTimeout(() => window.location.href = '/login.html', 2000);
+        } else {
+            fetch('http://localhost:5000/mybookings', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ customerId })
+            })
+            .then(response => response.json())
+            .then(data => {
+                const bookingBody = document.getElementById('bookingBody');
+
+                if (data.results.length === 0) {
+                    bookingBody.innerHTML = '<tr><td colspan="5">No past bookings found.</td></tr>';
+                } else {
+                    data.results.forEach(booking => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${booking.bookingId}</td>
+                            <td>${new Date(booking.bookingDate).toLocaleDateString()}</td>
+                            <td>${booking.cylinderType}</td>
+                            <td>${booking.address}</td>
+                            <td>${booking.phone}</td>
+                        `;
+                        bookingBody.appendChild(row);
+                    });
+                }
+            })
+            .catch(error => {
+                document.getElementById('error').innerText = "Failed to load booking history.";
+            });
+        }
+    </script>
+</body>
+</html>

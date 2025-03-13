@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Manage Bookings</title>
+    <style>
+        body { font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: left;
+            height: 100vh;
+            background-image: url("./bkg.png");
+  background-size: cover; 
+  background-repeat: no-repeat;
+  background-position: center; }
+        .container { width: 45%; margin-left:30px ; text-align: center; }
+        .title { font-size: 24px; margin: 20px 0; }
+        .search-input { padding: 10px; margin-right: 10px; }
+        .search-btn { padding: 10px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 10px; border: 1px solid #010000; text-align: center; background-color: white;}
+        th { background-color: #f2f2f2; }
+        .addon-btn { padding: 5px 10px; cursor: pointer; }
+        h1{
+            color: aliceblue;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="title">Manage Bookings</h1>
+        <input type="text" id="consumerId" class="search-input" placeholder="Enter Consumer ID">
+        <button id="searchBtn" class="search-btn">Search</button>
+        <div class="card">
+            <table id="bookingTable">
+                <thead>
+                    <tr>
+                        <th>Booking ID</th>
+                        <th>Date</th>
+                        <th>Cylinder Type</th>
+                        <th>Amount</th>
+                        <th>Address</th>
+                        <th>Phone</th>
+                        <th>Add-ons</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        let allBookings = [];
+
+        async function fetchBookings() {
+            try {
+                const response = await fetch("http://localhost:5000/allbookings");
+                const data = await response.json();
+                allBookings = data.results;
+                displayBookings(allBookings);
+            } catch (error) {
+                console.error("Error fetching bookings:", error);
+            }
+        }
+
+        function displayBookings(bookings) {
+            const tableBody = document.querySelector("#bookingTable tbody");
+            tableBody.innerHTML = "";
+
+            bookings.forEach(booking => {
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td>${booking.bookingId}</td>
+                    <td>${new Date(booking.bookingDate).toLocaleDateString()}</td>
+                    <td>${booking.cylinderType}</td>
+                    <td>$${booking.amount.toFixed(2)}</td>
+                    <td>${booking.address}</td>
+                    <td>${booking.phone}</td>
+                    <td>
+                        ${booking.addons ? "Granted" : `<button class='addon-btn' onclick='allowAddon(${booking.bookingId})'>Allow Add-on</button>`}
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        document.getElementById('searchBtn').addEventListener('click', () => {
+            const consumerId = document.getElementById('consumerId').value.trim();
+            const filtered = consumerId ? allBookings.filter(booking => booking.customerId === consumerId) : allBookings;
+            displayBookings(filtered);
+        });
+
+        async function allowAddon(bookingId) {
+            try {
+                const response = await fetch("http://localhost:5000/allowAddon", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ bookingId })
+                });
+
+                if (response.ok) {
+                    allBookings = allBookings.map(booking => booking.bookingId === bookingId ? { ...booking, addons: 1 } : booking);
+                    displayBookings(allBookings);
+                }
+            } catch (error) {
+                console.error("Error updating add-ons:", error);
+            }
+        }
+
+        fetchBookings();
+    </script>
+</body>
+</html>
